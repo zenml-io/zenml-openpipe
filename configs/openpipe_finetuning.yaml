@@ -1,0 +1,36 @@
+# environment configuration
+settings:
+  docker:
+    required_integrations:
+      - sklearn
+      - pandas
+    requirements:
+      - pyarrow
+      - requests
+      - openpipe
+
+# data parameters
+random_state: 42
+sample_size: 30
+data_source: "toy"
+user_column: "question"
+assistant_column: "answer"
+system_prompt: "You are a helpful customer service assistant for Ultra electronics products."
+split_ratio: 0.9
+metadata_columns: ["product"]
+
+# openPipe parameters
+dataset_name: "ultra_customer_service"
+model_name: "customer_service_assistant"
+base_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+enable_sft: true
+enable_preference_tuning: false
+learning_rate_multiplier: 1.0
+num_epochs: 10
+batch_size: "auto"
+default_temperature: 0
+wait_for_completion: true
+timeout_minutes: 120
+verbose_logs: true
+auto_rename: true
+force_overwrite: false 
