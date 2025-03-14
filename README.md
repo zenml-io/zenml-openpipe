@@ -140,6 +140,70 @@ python run.py --openpipe-api-key=opk-your-api-key --data-source=path/to/data.csv
 python run.py --openpipe-api-key=opk-your-api-key --model-name=my-model --base-model=meta-llama/Meta-Llama-3-70B-Instruct
 ```
 
+## 🗂️ Bringing Your Own Data
+
+The integration supports using your own custom datasets for fine-tuning. Here's how to prepare and use your data:
+
+### Data Format Requirements
+
+Your CSV file should include at minimum these two columns:
+- A column with user messages/questions (default: `question`)
+- A column with assistant responses/answers (default: `answer`)
+
+Example CSV structure:
+```csv
+question,answer,product
+"How do I turn on my Ultra TV?","Press the power button on the remote or on the bottom right of the TV.",television
+"Is my Ultra SmartWatch waterproof?","Yes, the Ultra SmartWatch is water-resistant up to 50 meters.",smartwatch
+```
+
+### Using Your Data
+
+1. **Prepare your CSV file** with the required columns
+2. **Run the pipeline** specifying your data file:
+   ```bash
+   python run.py --data-source=path/to/your/data.csv
+   ```
+
+### Customizing Column Names
+
+If your CSV uses different column names, you can specify them:
+
+```bash
+python run.py --data-source=path/to/your/data.csv --user-column=prompt --assistant-column=completion
+```
+
+### Adding Metadata
+
+You can include additional metadata columns in your CSV to enhance fine-tuning:
+
+1. Add the columns to your CSV
+2. Specify them when running the pipeline:
+   ```bash
+   python run.py --data-source=path/to/your/data.csv --metadata-columns=category --metadata-columns=difficulty
+   ```
+
+Metadata can help OpenPipe better understand the context of your training examples and can be useful for:
+- Filtering and analyzing results
+- Creating specialized versions of your model
+- Understanding performance across different data categories
+
+### Data Splitting
+
+By default, the pipeline splits your data into training and evaluation sets using a 90/10 split. You can adjust this:
+
+```bash
+python run.py --data-source=path/to/your/data.csv --split-ratio=0.8
+```
+
+### System Prompt
+
+You can set a custom system prompt that will be applied to all examples:
+
+```bash
+python run.py --data-source=path/to/your/data.csv --system-prompt="You are a customer service assistant for Ultra products."
+```
+
 ### Inspecting Model Details
 
 ```bash
