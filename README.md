@@ -6,9 +6,9 @@
 <div align="center">
   <br />
   <p>
-    <img src="https://ai-infrastructure.org/wp-content/uploads/2022/08/ZenML-Logo.png" alt="ZenML Logo" height="70">
+    <img src="https://ai-infrastructure.org/wp-content/uploads/2022/08/ZenML-Logo.png" alt="ZenML Logo" height="100">
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <img src="https://bookface-images.s3.amazonaws.com/logos/fb9d92257bfc16c8162d539e84b1a125614976f3.png?1693238562" alt="OpenPipe Logo" height="70">
+    <img src="https://bookface-images.s3.amazonaws.com/logos/fb9d92257bfc16c8162d539e84b1a125614976f3.png?1693238562" alt="OpenPipe Logo" height="100">
   </p>
   <br />
 
