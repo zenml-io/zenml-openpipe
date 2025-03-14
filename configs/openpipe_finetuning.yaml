@@ -22,7 +22,7 @@ metadata_columns: ["product"]
 # openPipe parameters
 dataset_name: "ultra_customer_service"
 model_name: "customer_service_assistant"
-base_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+base_model: "meta-llama/Meta-Llama-3.1-8B-Instruct"
 enable_sft: true
 enable_preference_tuning: false
 learning_rate_multiplier: 1.0

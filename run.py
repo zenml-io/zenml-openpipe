@@ -79,7 +79,7 @@ Examples:
 )
 @click.option(
     "--base-model",
-    default="meta-llama/Meta-Llama-3-8B-Instruct",
+    default="meta-llama/Meta-Llama-3.1-8B-Instruct",
     type=click.STRING,
     help="Base model to fine-tune.",
 )
@@ -141,11 +141,17 @@ Examples:
     default=False,
     help="Disable caching for the pipeline run.",
 )
+@click.option(
+    "--use-sdk",
+    is_flag=True,
+    default=False,
+    help="Use the Python OpenPipe SDK instead of direct API calls.",
+)
 def main(
     openpipe_api_key: Optional[str] = None,
     dataset_name: str = "ultra_customer_service",
     model_name: str = "customer_service_assistant",
-    base_model: str = "meta-llama/Meta-Llama-3-8B-Instruct",
+    base_model: str = "meta-llama/Meta-Llama-3.1-8B-Instruct",
     system_prompt: str = "You are a helpful customer service assistant for Ultra electronics products.",
     data_source: str = "toy",
     sample_size: int = 30,
@@ -156,6 +162,7 @@ def main(
     force_overwrite: bool = False,
     fetch_details_only: bool = False,
     no_cache: bool = False,
+    use_sdk: bool = False,
 ):
     """Main entry point for the OpenPipe fine-tuning pipeline.
 
@@ -176,6 +183,7 @@ def main(
         force_overwrite: If True, delete existing model with the same name before creating new one.
         fetch_details_only: Only fetch model details without running the fine-tuning pipeline.
         no_cache: If `True` cache will be disabled.
+        use_sdk: If `True` use the Python OpenPipe SDK instead of direct API calls.
     """
     client = Client()
 
@@ -269,6 +277,7 @@ def main(
         "auto_rename": auto_rename,
         "force_overwrite": force_overwrite,
         "openpipe_api_key": openpipe_api_key,
+        "use_sdk": use_sdk,
     }
     
     # Run the pipeline

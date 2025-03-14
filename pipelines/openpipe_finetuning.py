@@ -25,6 +25,7 @@ from steps import (
     openpipe_data_converter,
     openpipe_dataset_creator,
     openpipe_finetuning_starter,
+    openpipe_finetuning_starter_sdk,
 )
 
 logger = get_logger(__name__)
@@ -49,7 +50,7 @@ def openpipe_finetuning(
     
     # Fine-tuning parameters
     model_name: str = "zenml_finetuned_model",
-    base_model: str = "meta-llama/Meta-Llama-3-8B-Instruct",
+    base_model: str = "meta-llama/Meta-Llama-3.1-8B-Instruct",
     enable_sft: bool = True,
     enable_preference_tuning: bool = False,
     learning_rate_multiplier: float = 1.0,
@@ -61,6 +62,9 @@ def openpipe_finetuning(
     verbose_logs: bool = True,
     auto_rename: bool = True,
     force_overwrite: bool = False,
+    
+    # Implementation options
+    use_sdk: bool = False,
 ):
     """
     OpenPipe fine-tuning pipeline.
@@ -93,6 +97,7 @@ def openpipe_finetuning(
         verbose_logs: Whether to log detailed model information during polling
         auto_rename: If True, automatically append a timestamp to model name if it already exists
         force_overwrite: If True, delete existing model with the same name before creating new one
+        use_sdk: If True, use the Python OpenPipe SDK instead of direct API calls
 
     Returns:
         A dictionary with details about the fine-tuning job, including model information
@@ -122,24 +127,46 @@ def openpipe_finetuning(
         base_url=base_url,
     )
     
-    # Start fine-tuning and monitor progress
-    finetuning_result = openpipe_finetuning_starter(
-        dataset_id=dataset_id,
-        model_name=model_name,
-        base_model=base_model,
-        openpipe_api_key=openpipe_api_key,
-        base_url=base_url,
-        enable_sft=enable_sft,
-        enable_preference_tuning=enable_preference_tuning,
-        learning_rate_multiplier=learning_rate_multiplier,
-        num_epochs=num_epochs,
-        batch_size=batch_size,
-        default_temperature=default_temperature,
-        wait_for_completion=wait_for_completion,
-        timeout_minutes=timeout_minutes,
-        verbose_logs=verbose_logs,
-        auto_rename=auto_rename,
-        force_overwrite=force_overwrite,
-    )
+    # Choose between SDK and direct API implementation
+    if use_sdk:
+        # Use the SDK implementation
+        finetuning_result = openpipe_finetuning_starter_sdk(
+            dataset_id=dataset_id,
+            model_name=model_name,
+            base_model=base_model,
+            openpipe_api_key=openpipe_api_key,
+            base_url=base_url,
+            enable_sft=enable_sft,
+            enable_preference_tuning=enable_preference_tuning,
+            learning_rate_multiplier=learning_rate_multiplier,
+            num_epochs=num_epochs,
+            batch_size=batch_size,
+            default_temperature=default_temperature,
+            wait_for_completion=wait_for_completion,
+            timeout_minutes=timeout_minutes,
+            verbose_logs=verbose_logs,
+            auto_rename=auto_rename,
+            force_overwrite=force_overwrite,
+        )
+    else:
+        # Use the original direct API implementation
+        finetuning_result = openpipe_finetuning_starter(
+            dataset_id=dataset_id,
+            model_name=model_name,
+            base_model=base_model,
+            openpipe_api_key=openpipe_api_key,
+            base_url=base_url,
+            enable_sft=enable_sft,
+            enable_preference_tuning=enable_preference_tuning,
+            learning_rate_multiplier=learning_rate_multiplier,
+            num_epochs=num_epochs,
+            batch_size=batch_size,
+            default_temperature=default_temperature,
+            wait_for_completion=wait_for_completion,
+            timeout_minutes=timeout_minutes,
+            verbose_logs=verbose_logs,
+            auto_rename=auto_rename,
+            force_overwrite=force_overwrite,
+        )
     
-    return finetuning_result 
+    return finetuning_result

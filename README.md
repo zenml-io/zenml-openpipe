@@ -46,7 +46,7 @@ python run.py --openpipe-api-key=opk-your-api-key
 - `--openpipe-api-key`: Your OpenPipe API key (required if not set as environment variable)
 - `--dataset-name`: Name for the OpenPipe dataset (default: "zenml_dataset")
 - `--model-name`: Name for the fine-tuned model (default: "zenml_finetuned_model")
-- `--base-model`: Base model to fine-tune (default: "meta-llama/Meta-Llama-3-8B-Instruct")
+- `--base-model`: Base model to fine-tune (default: "meta-llama/Meta-Llama-3.1-8B-Instruct")
 - `--system-prompt`: System prompt to use for all examples (default: "You are a helpful assistant")
 - `--wait-for-completion/--no-wait-for-completion`: Whether to wait for the fine-tuning job to complete (default: wait)
 - `--no-cache`: Disable caching for the pipeline run
