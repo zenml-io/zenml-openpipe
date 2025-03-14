@@ -124,6 +124,33 @@ Every run of your fine-tuning pipeline tracks:
 - Customize supervised fine-tuning parameters
 - Set up continuous training processes
 
+### 🔄 Production Deployment & Scheduling
+
+You can deploy this integration on any infrastructure stack supported by ZenML to enable automated, scheduled fine-tuning workflows.
+
+ZenML supports various orchestrators (Airflow, Kubernetes, Vertex AI, etc.) and cloud environments, allowing you to:
+- Run fine-tuning jobs on a recurring schedule
+- Trigger pipelines based on new data arrivals
+- Scale resources based on workload requirements
+- Integrate with your existing ML infrastructure
+
+For more details on deployment options, check the [ZenML documentation](https://docs.zenml.io/user-guide/production-guide).
+
+### 📊 Comprehensive Metadata Tracking
+
+This integration leverages ZenML's metadata tracking capabilities to capture extensive information throughout the fine-tuning process:
+
+- **Data preparation metrics**: Shape of datasets, split ratios, sample distributions
+- **Fine-tuning parameters**: Model configurations, hyperparameters, training durations
+- **Runtime statistics**: Status transitions, completion times, resource utilization
+- **Model information**: URLs to access models, deployment timestamps, version tracking
+
+All metadata is accessible in the ZenML dashboard, enabling:
+- Experiment comparison across multiple runs
+- Performance analysis and debugging
+- Easy reproduction of successful training jobs
+- Audit trails for model governance
+
 ## 📚 Advanced Usage
 
 ### Custom Data Source
