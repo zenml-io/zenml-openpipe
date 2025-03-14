@@ -75,7 +75,7 @@ def openpipe_dataset_creator(
         for i in range(0, len(entries), batch_size):
             batch = entries[i : i + batch_size]
 
-            op_client.add_dataset_entries(dataset_id=dataset_id, entries=batch)
+            op_client.create_dataset_entries(dataset_id=dataset_id, entries=batch)
 
             logger.info(
                 f"Uploaded batch {i // batch_size + 1}/{(len(entries) - 1) // batch_size + 1} "
