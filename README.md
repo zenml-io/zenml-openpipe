@@ -207,7 +207,7 @@ All metadata is accessible in the ZenML dashboard, enabling:
 
 A key advantage of this integration is that OpenPipe automatically deploys your fine-tuned model as soon as training completes. Your model is immediately available via API without any additional deployment steps.
 
-![OpenPipe Deployed Model](zenml_openpipe_pipeline_deployed.png)
+![OpenPipe Deployed Model](assets/zenml_openpipe_pipeline_deployed.png)
 *The OpenPipe console showing a successfully deployed fine-tuned model*
 
 When you run the pipeline again with new data, OpenPipe automatically retrains and redeploys your model, ensuring your production model always reflects your latest data. This makes it easy to implement a continuous improvement cycle:

@@ -223,7 +223,7 @@ The implementation follows [OpenPipe's fine-tuning best practices](https://docs.
 
 Once the fine-tuning process completes, OpenPipe automatically deploys your model and makes it available through their API. You can immediately start using your fine-tuned model with a simple curl request:
 
-![OpenPipe Deployed Model](zenml_openpipe_pipeline_deployed.png)
+![OpenPipe Deployed Model](assets/zenml_openpipe_pipeline_deployed.png)
 *The OpenPipe console showing a successfully deployed fine-tuned model*
 
 ```bash
