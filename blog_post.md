@@ -20,8 +20,6 @@ Fine-tuning large language models (LLMs) for specific business domains has becom
 - **Production deployment**: Moving from successful experiments to reliable production systems
 - **Monitoring drift**: Detecting when fine-tuned models need retraining
 
-![LLM Fine-Tuning Challenges](https://cdn-images-1.medium.com/max/1600/1*VeMJgWGorBZAFKNCL6QCBA.png)
-
 While foundation models like [GPT-4](https://openai.com/research/gpt-4) and [Llama 3](https://ai.meta.com/llama/) offer impressive capabilities, they often lack domain-specific knowledge or tone alignment with company communications. Fine-tuning solves this problem, but implementing a reliable, production-grade fine-tuning workflow remains challenging for most teams.
 
 The stakes are high: Gartner reports that **78% of organizations** attempting to deploy LLMs struggle with inconsistent results and limited reproducibility, while **McKinsey estimates** potential value of $200-500 billion annually for companies that successfully implement domain-specific LLMs.
@@ -99,8 +97,6 @@ def openpipe_finetuning(
     return model_result
 ```
 
-![ZenML Pipeline Visualization](https://docs.zenml.io/assets/images/pipeline_dag_0835bd13edb1fc9c7a83fbddc2b1c85f.png)
-
 This pipeline architecture provides several key advantages:
 
 - **Modular design**: Each step handles a specific part of the workflow
@@ -108,7 +104,7 @@ This pipeline architecture provides several key advantages:
 - **Comprehensive tracking**: All artifacts and parameters are tracked automatically
 - **Reproducibility**: Run the same pipeline with different parameters for comparison
 
-For more details on building custom pipelines, check out the [ZenML pipeline documentation](https://docs.zenml.io/user-guide/advanced-guide/pipelines).
+For more details on building custom pipelines, check out the [ZenML pipeline documentation](https://docs.zenml.io/user-guide/starter-guide/create-an-ml-pipeline).
 
 ### Data Preparation Made Simple
 
@@ -181,7 +177,7 @@ This step transforms your raw data (CSV or DataFrame) into the specialized JSONL
 - Applying system prompts consistently
 - Preserving important metadata for analysis
 
-For more information on OpenPipe's data format requirements, visit their [dataset documentation](https://docs.openpipe.ai/overview/datasets).
+For more information on OpenPipe's data format requirements, visit their [dataset documentation](https://docs.openpipe.ai/features/datasets/overview).
 
 ## Practical Implementation
 
@@ -196,11 +192,9 @@ RapidTech, a fictional SaaS company, needed to fine-tune an LLM to handle custom
 3. Consistent performance with company voice and product knowledge
 4. Cost-effective inference for high-volume support queries
 
-![Customer Support AI Workflow](https://miro.medium.com/v2/resize:fit:1400/1*VDUKdj8BFzHyFS6Su4B_Iw.png)
-
 ### Implementation Approach
 
-We prepared the CSV training data with three key columns:
+We prepare the CSV training data with three key columns:
 - `question`: Customer queries
 - `answer`: Agent responses
 - `product`: The product category (for metadata)
@@ -221,29 +215,17 @@ python run.py \
   --metadata-columns=product
 ```
 
-The implementation follows [OpenPipe's fine-tuning best practices](https://docs.openpipe.ai/guides/fine-tuning/introduction) while leveraging [ZenML's orchestration capabilities](https://docs.zenml.io/user-guide/starter-guide/understand-pipeline-runs).
+The implementation follows [OpenPipe's fine-tuning best practices](https://docs.openpipe.ai/) while leveraging [ZenML's orchestration capabilities](https://docs.zenml.io/stack-components/orchestrators).
 
 ### Performance Metrics and Cost Analysis
 
-The pipeline not only handled the fine-tuning process but also tracked key metrics throughout:
-
-| Metric | Before Fine-Tuning | After Fine-Tuning | Improvement |
-|--------|-------------------|-------------------|-------------|
-| Accuracy on product details | 67% | 94% | +27% |
-| Response relevance | 72% | 91% | +19% |
-| Human escalation rate | 45% | 12% | -33% |
-| Avg. response time | 37 sec | 4 sec | -89% |
-| Monthly inference cost | $4,280 | $950 | -78% |
-
-![Performance Metrics Dashboard](https://miro.medium.com/v2/resize:fit:1400/1*DLrZO3wIvWD7U5O5lAGb-g.png)
-
-The fine-tuned model demonstrated:
+The fine-tuned model demonstrates:
 - **Better domain knowledge**: Correctly answering questions about RapidTech products
 - **More relevant responses**: Directly addressing customer concerns
 - **Faster responses**: No need for external knowledge lookups
 - **Lower cost**: Smaller, fine-tuned model vs. larger foundation model
 
-These results align with the broader industry findings documented in [ZenML's LLMOps Database](https://llmops.zenml.io).
+These results align with the broader industry findings documented in [ZenML's LLMOps Database](https://www.zenml.io/llmops-database).
 
 ## Data Management for Fine-Tuning
 
@@ -278,7 +260,7 @@ Behind the scenes, the pipeline converts your data to the required JSONL format:
 }
 ```
 
-For more details on OpenPipe's JSONL format requirements, refer to their [data preparation documentation](https://docs.openpipe.ai/overview/datasets).
+For more details on OpenPipe's JSONL format requirements, refer to their [data preparation documentation](https://docs.openpipe.ai/features/datasets/overview).
 
 ### Data Quality Monitoring
 
@@ -297,14 +279,12 @@ log_metadata(
 )
 ```
 
-![ZenML Metadata Dashboard](https://cloud.zenml.io/assets/zenml-dashboard-63f70e23fe8213cee7704f33d57d23ba.png)
-
-This information is accessible in the [ZenML dashboard](https://docs.zenml.io/user-guide/starter-guide/monitor-dashboard), allowing you to:
+This information is accessible in the [ZenML dashboard](https://docs.zenml.io/getting-started/core-concepts), allowing you to:
 - Track data distribution across different pipeline runs
 - Compare model performance against data quality metrics
 - Detect potential data drift requiring model retraining
 
-Learn more about ZenML's metadata tracking in their [documentation](https://docs.zenml.io/user-guide/artifact-management/log-artifact-metadata).
+Learn more about ZenML's metadata tracking in their [documentation](https://docs.zenml.io/how-to/model-management-metrics/track-metrics-metadata).
 
 ## Monitoring and Reproducibility
 
@@ -333,15 +313,13 @@ if hyperparams and not result.get("logged_hyperparams"):
     log_metadata(metadata={"hyperparameters": hyperparams})
 ```
 
-![Training Progress Visualization](https://docs.zenml.io/assets/images/mlflow-run-80c5aa6d902c3e5ca9bff36ea6a1dbfa.png)
-
 This provides a real-time view of:
 - Training status and progress
 - Model hyperparameters
 - Error messages or warnings
 - Time spent in each training phase
 
-Check out [OpenPipe's model monitoring documentation](https://docs.openpipe.ai/guides/deployment/monitoring) for more information about monitoring your fine-tuned models in production.
+Check out [OpenPipe's model monitoring documentation](https://docs.openpipe.ai/features/fine-tuning/quick-start) for more information about monitoring your fine-tuned models in production.
 
 ### Deployment on ZenML Stacks
 
@@ -349,7 +327,7 @@ The integration can be deployed on any infrastructure stack supported by [ZenML]
 
 This enables powerful MLOps workflows:
 - **Automated retraining**: Schedule regular fine-tuning runs
-- **Distributed execution**: Run on [Kubernetes](https://docs.zenml.io/stacks-and-components/component-guide/orchestrators/kubernetes), [Vertex AI](https://docs.zenml.io/stacks-and-components/component-guide/orchestrators/vertex), or your preferred platform
+- **Distributed execution**: Run on [Kubernetes](https://docs.zenml.io/stack-components/orchestrators/kubernetes), [Vertex AI](https://docs.zenml.io/stack-components/orchestrators/vertex), or your preferred platform
 - **Scaling resources**: Allocate appropriate compute for larger datasets
 - **Environment standardization**: Ensure consistent execution environments
 
