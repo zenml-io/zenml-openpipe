@@ -1,12 +1,5 @@
 # Streamlining LLM Fine-Tuning in Production: ZenML + OpenPipe Integration
 
-**Sameer Sharma**  
-June 12, 2025  
-•  
-**All posts**  
-**LLMOps**  
-**MLOps**  
-
 ## Contents
 - [The LLM Fine-Tuning Challenge](#the-llm-fine-tuning-challenge)
 - [The ZenML + OpenPipe Solution](#the-zenml--openpipe-solution)
