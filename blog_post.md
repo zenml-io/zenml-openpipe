@@ -352,22 +352,13 @@ Check out [OpenPipe's model monitoring documentation](https://docs.openpipe.ai/g
 
 ### Deployment on ZenML Stacks
 
-The integration can be deployed on any infrastructure stack supported by [ZenML](https://docs.zenml.io/stacks-and-components/stacks):
-
-```bash
-# Deploy on a schedule using ZenML's built-in scheduler
-zenml schedule create weekly_retraining --pipeline openpipe_finetuning --cron "0 0 * * 1"
-```
-
-![ZenML Stack Architecture](https://docs.zenml.io/assets/images/stacks-and-components-2b1ee1be7a9b9267b82519ce81c34c68.png)
+The integration can be deployed on any infrastructure stack supported by [ZenML](https://docs.zenml.io/user-guide/production-guide):
 
 This enables powerful MLOps workflows:
 - **Automated retraining**: Schedule regular fine-tuning runs
 - **Distributed execution**: Run on [Kubernetes](https://docs.zenml.io/stacks-and-components/component-guide/orchestrators/kubernetes), [Vertex AI](https://docs.zenml.io/stacks-and-components/component-guide/orchestrators/vertex), or your preferred platform
 - **Scaling resources**: Allocate appropriate compute for larger datasets
 - **Environment standardization**: Ensure consistent execution environments
-
-Learn more about ZenML's scheduling capabilities in the [scheduler documentation](https://docs.zenml.io/user-guide/production-guide/schedule-pipeline-runs).
 
 ## Key Takeaways
 
@@ -403,4 +394,4 @@ The combination of [ZenML's](https://zenml.io) robust MLOps capabilities and [Op
 
 ---
 
-Ready to get started? Check out the [ZenML-OpenPipe repository](https://github.com/zenml-io/zenml-openpipe) or join the [ZenML Slack community](https://zenml.io/slack-invite) for personalized guidance. 
+Ready to get started? Check out the [ZenML-OpenPipe repository](https://github.com/zenml-io/zenml-openpipe) or join the [ZenML Slack community](https://zenml.io/slack) for personalized guidance. 
