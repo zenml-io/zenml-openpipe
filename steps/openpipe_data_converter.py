@@ -17,10 +17,10 @@
 
 import json
 import os
-from typing import List, Optional, Annotated
+from typing import Annotated, List, Optional
 
 import pandas as pd
-from zenml import step, log_metadata
+from zenml import log_metadata, step
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -61,14 +61,14 @@ def openpipe_data_converter(
             "configuration": {
                 "system_prompt": system_prompt,
                 "user_column": user_column,
-                "assistant_column": assistant_column, 
+                "assistant_column": assistant_column,
                 "split_ratio": split_ratio,
                 "metadata_columns": metadata_columns if metadata_columns else [],
             },
             "data_stats": {
                 "dataset_shape": f"{data.shape[0]} rows × {data.shape[1]} columns",
                 "sample_data": data.head(2).to_dict() if len(data) > 0 else {},
-            }
+            },
         }
     )
 
@@ -116,14 +116,14 @@ def openpipe_data_converter(
     # Log statistics about the generated data
     train_count = sum(1 for x in jsonl_data if x["split"] == "TRAIN")
     test_count = sum(1 for x in jsonl_data if x["split"] == "TEST")
-    
+
     log_metadata(
         metadata={
             "output_stats": {
                 "examples_count": len(jsonl_data),
                 "train_examples": train_count,
                 "test_examples": test_count,
-                "train_test_ratio": f"{train_count}:{test_count}"
+                "train_test_ratio": f"{train_count}:{test_count}",
             }
         }
     )
