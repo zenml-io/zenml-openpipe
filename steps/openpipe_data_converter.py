@@ -17,7 +17,7 @@
 
 import json
 import os
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
 import pandas as pd
 from zenml import step

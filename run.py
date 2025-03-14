@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-import os
 import json
-import requests
-from typing import Optional, List
+import os
+from typing import List, Optional
 
 import click
+import requests
 from zenml.client import Client
 from zenml.logger import get_logger
 

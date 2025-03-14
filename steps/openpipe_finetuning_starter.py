@@ -15,11 +15,9 @@
 # limitations under the License.
 #
 
-import json
-import time
-import requests
 import datetime
-from typing import Dict, Optional, Union
+import time
+from typing import Dict
 
 from zenml import step
 from zenml.logger import get_logger

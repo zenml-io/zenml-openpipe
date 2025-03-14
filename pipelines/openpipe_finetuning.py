@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from zenml import pipeline
 from zenml.logger import get_logger

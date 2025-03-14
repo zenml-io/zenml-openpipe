@@ -16,13 +16,10 @@
 #
 
 import json
-import os
-import requests
-from typing import Dict, Optional
 
+from openpipe.client import OpenPipe
 from zenml import step
 from zenml.logger import get_logger
-from openpipe.client import OpenPipe
 
 logger = get_logger(__name__)
 
