@@ -1,19 +1,19 @@
 # Apache Software License 2.0
-# 
+#
 # Copyright (c) ZenML GmbH 2025. All rights reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
 import os
 import json
@@ -141,12 +141,6 @@ Examples:
     default=False,
     help="Disable caching for the pipeline run.",
 )
-@click.option(
-    "--use-sdk",
-    is_flag=True,
-    default=False,
-    help="Use the Python OpenPipe SDK instead of direct API calls.",
-)
 def main(
     openpipe_api_key: Optional[str] = None,
     dataset_name: str = "ultra_customer_service",
@@ -162,7 +156,6 @@ def main(
     force_overwrite: bool = False,
     fetch_details_only: bool = False,
     no_cache: bool = False,
-    use_sdk: bool = False,
 ):
     """Main entry point for the OpenPipe fine-tuning pipeline.
 
@@ -183,7 +176,6 @@ def main(
         force_overwrite: If True, delete existing model with the same name before creating new one.
         fetch_details_only: Only fetch model details without running the fine-tuning pipeline.
         no_cache: If `True` cache will be disabled.
-        use_sdk: If `True` use the Python OpenPipe SDK instead of direct API calls.
     """
     client = Client()
 
@@ -196,61 +188,65 @@ def main(
     if not openpipe_api_key:
         openpipe_api_key = os.environ.get("OPENPIPE_API_KEY")
         if not openpipe_api_key:
-            logger.error("OpenPipe API key not provided. Please set --openpipe-api-key "
-                         "or the OPENPIPE_API_KEY environment variable.")
+            logger.error(
+                "OpenPipe API key not provided. Please set --openpipe-api-key "
+                "or the OPENPIPE_API_KEY environment variable."
+            )
             return
-    
+
     # Check for conflicting options
     if force_overwrite and auto_rename:
-        logger.warning("Both force_overwrite and auto_rename are enabled. force_overwrite will take precedence.")
-    
+        logger.warning(
+            "Both force_overwrite and auto_rename are enabled. force_overwrite will take precedence."
+        )
+
     # If fetch_details_only is True, just fetch model details without running the pipeline
     if fetch_details_only:
         logger.info(f"Fetching details for model: {model_name}")
-        
+
         # Set up headers for API request
         headers = {
             "Authorization": f"Bearer {openpipe_api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
-        
+
         # Construct the URL
         base_url = "https://api.openpipe.ai/api/v1"
         url = f"{base_url}/models/{model_name}"
-        
+
         try:
             # Make the API request
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             model_info = response.json()
-            
+
             # Log important model information
             status = model_info.get("openpipe", {}).get("status", "UNKNOWN")
             error_message = model_info.get("openpipe", {}).get("errorMessage")
             base_model = model_info.get("openpipe", {}).get("baseModel", "unknown")
             created = model_info.get("created", "unknown")
-            
+
             logger.info(f"Model: {model_name}")
             logger.info(f"Status: {status}")
             logger.info(f"Base model: {base_model}")
             logger.info(f"Created: {created}")
-            
+
             if status == "ERROR" and error_message:
                 logger.error(f"Error message: {error_message}")
-            
+
             # Log training parameters if available
             hyperparams = model_info.get("openpipe", {}).get("hyperparameters", {})
             if hyperparams:
                 logger.info("Training parameters:")
                 for key, value in hyperparams.items():
                     logger.info(f"  {key}: {value}")
-            
+
             # Print full JSON response for detailed debugging
             logger.info(f"Full model details: {json.dumps(model_info, indent=2)}")
             return
         except Exception as e:
             logger.error(f"Failed to fetch model details: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
+            if hasattr(e, "response") and e.response is not None:
                 logger.error(f"Response status code: {e.response.status_code}")
                 logger.error(f"Response body: {e.response.text}")
             return
@@ -262,7 +258,7 @@ def main(
     pipeline_args["config_path"] = os.path.join(
         config_folder, "openpipe_finetuning.yaml"
     )
-    
+
     # Set up run arguments
     run_args_openpipe = {
         "dataset_name": dataset_name,
@@ -277,12 +273,10 @@ def main(
         "auto_rename": auto_rename,
         "force_overwrite": force_overwrite,
         "openpipe_api_key": openpipe_api_key,
-        "use_sdk": use_sdk,
     }
-    
+
     # Run the pipeline
     openpipe_finetuning.with_options(**pipeline_args)(**run_args_openpipe)
-    
 
 
 if __name__ == "__main__":
