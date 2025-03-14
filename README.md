@@ -114,7 +114,7 @@ Every run of your fine-tuning pipeline tracks:
 - Model performance and results
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/86c5be2c-7faf-4ac8-96d1-9921a9d2f6a2" width="700" alt="Pipeline Lineage">
+  <img src="https://github.com/user-attachments/assets/86c5be2c-7faf-4ac8-96d1-9921a9d2f6a2" width="900" alt="Pipeline Lineage">
 </div>
 
 ### 🛠️ Flexible Customization
