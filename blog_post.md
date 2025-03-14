@@ -40,6 +40,8 @@ This integration enables data scientists and ML engineers to:
 3. **Deploy fine-tuned models to production** with confidence
 4. **Schedule recurring fine-tuning jobs** as data evolves
 
+A key advantage of this integration is that **OpenPipe automatically deploys your fine-tuned models** as soon as training completes, making them immediately available via API. When you run the pipeline again with new data, your model is automatically retrained and redeployed, ensuring your production model always reflects your latest data.
+
 ## Building a Fine-Tuning Pipeline
 
 Let's examine the core components of an LLM fine-tuning pipeline built with ZenML and OpenPipe.
@@ -217,6 +219,79 @@ python run.py \
 
 The implementation follows [OpenPipe's fine-tuning best practices](https://docs.openpipe.ai/) while leveraging [ZenML's orchestration capabilities](https://docs.zenml.io/stack-components/orchestrators).
 
+### Using Your Deployed Model
+
+Once the fine-tuning process completes, OpenPipe automatically deploys your model and makes it available through their API. You can immediately start using your fine-tuned model with a simple curl request:
+
+![OpenPipe Deployed Model](zenml_openpipe_pipeline_deployed.png)
+*The OpenPipe console showing a successfully deployed fine-tuned model*
+
+```bash
+curl https://api.openpipe.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer opk-your-api-key" \
+  -d '{
+    "model": "rapidtech_support_assistant",
+    "messages": [
+      {"role": "system", "content": "You are a helpful customer support assistant for RapidTech products."},
+      {"role": "user", "content": "I need to reset my password for AccountManager"}
+    ],
+    "temperature": 0.7
+  }'
+```
+
+For Python applications, you can use the OpenPipe Python SDK, which follows the OpenAI SDK pattern for seamless integration:
+
+```python
+# pip install openpipe
+
+from openpipe import OpenAI
+
+client = OpenAI(
+  openpipe={"api_key": "opk-your-api-key"}
+)
+
+completion = client.chat.completions.create(
+    model="openpipe:rapidtech_support_assistant",
+    messages=[
+        {
+            "role": "system",
+            "content": "You are a helpful customer service assistant for RapidTech products."
+        },
+        {
+            "role": "user",
+            "content": "Can I trade in my old device for a new RapidTech Pro?"
+        }
+    ],
+    temperature=0,
+    openpipe={
+        "tags": {
+            "prompt_id": "customer_query",
+            "application": "support_portal"
+        }
+    },
+)
+
+print(completion.choices[0].message)
+```
+
+This SDK approach is particularly useful for integrating with existing applications or services, and it supports tagging your requests for analytics and monitoring.
+
+This immediate deployment capability eliminates the need for manual model deployment, allowing you to test and integrate your custom model right away.
+
+### Automated Redeployment with New Data
+
+When product information changes or you collect new training data, simply run the pipeline again:
+
+```bash
+python run.py \
+  --data-source=updated_support_conversations.csv \
+  --model-name=rapidtech_support_assistant \
+  --force-overwrite=True
+```
+
+OpenPipe will automatically retrain and redeploy your model with the updated data, ensuring your production model always reflects the latest information and examples. This seamless redeployment process makes it easy to keep your models up to date without manual intervention.
+
 ### Performance Metrics and Cost Analysis
 
 The fine-tuned model demonstrates:
@@ -319,6 +394,18 @@ This provides a real-time view of:
 - Error messages or warnings
 - Time spent in each training phase
 
+### Continuous Model Improvement
+
+A key advantage of the ZenML-OpenPipe integration is the ability to implement a continuous improvement cycle for your fine-tuned models:
+
+1. **Initial training**: Fine-tune a model on your current dataset
+2. **Production deployment**: Automatically handled by OpenPipe
+3. **Feedback collection**: Gather new examples and user interactions
+4. **Dataset augmentation**: Add new examples to your training data
+5. **Retraining and redeployment**: Run the pipeline again to update the model
+
+With each iteration, both the dataset and model quality improve, creating a virtuous cycle of continuous enhancement. Since OpenPipe automatically redeploys your model with each training run, new capabilities are immediately available in production without additional deployment steps.
+
 Check out [OpenPipe's model monitoring documentation](https://docs.openpipe.ai/features/fine-tuning/quick-start) for more information about monitoring your fine-tuned models in production.
 
 ### Deployment on ZenML Stacks
@@ -344,6 +431,8 @@ From implementing this integration with multiple customers, several key insights
 4. **Automation reduces operational overhead** – Scheduled pipelines eliminate manual steps and ensure timely model updates.
 
 5. **Metadata tracking enables governance** – Complete lineage from data to model deployment satisfies compliance requirements.
+
+6. **Automatic deployment accelerates time-to-value** – With OpenPipe's instant deployment, fine-tuned models are immediately usable via API without additional DevOps work.
 
 ## Next Steps
 

@@ -75,6 +75,58 @@ export OPENPIPE_API_KEY=opk-your-api-key
 python run.py
 ```
 
+Once the pipeline completes, OpenPipe automatically deploys your fine-tuned model and makes it available through their API. You can immediately use your model with a simple API call:
+
+```bash
+curl https://api.openpipe.ai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer opk-your-api-key" \
+  -d '{
+    "model": "customer_service_assistant",
+    "messages": [
+      {"role": "system", "content": "You are a helpful customer service assistant."},
+      {"role": "user", "content": "How do I reset my password?"}
+    ]
+  }'
+```
+
+For Python applications, you can use the OpenPipe Python SDK:
+
+```python
+# pip install openpipe
+
+from openpipe import OpenAI
+
+client = OpenAI(
+  openpipe={"api_key": "opk-your-api-key"}
+)
+
+completion = client.chat.completions.create(
+    model="openpipe:customer_service_assistant",
+    messages=[
+        {
+            "role": "system",
+            "content": "You are a helpful customer service assistant for Ultra electronics products."
+        },
+        {
+            "role": "user",
+            "content": "Can I trade in my old device for a new UltraPhone X?"
+        }
+    ],
+    temperature=0,
+    openpipe={
+        "tags": {
+            "prompt_id": "counting",
+            "any_key": "any_value"
+        }
+    },
+)
+
+print(completion.choices[0].message)
+```
+
+When you need to update your model with new data, simply run the pipeline again, and OpenPipe will automatically retrain and redeploy the updated model.
+
 ## ✨ Key Features
 
 ### 📊 End-to-End Fine-Tuning Pipeline
@@ -150,6 +202,20 @@ All metadata is accessible in the ZenML dashboard, enabling:
 - Performance analysis and debugging
 - Easy reproduction of successful training jobs
 - Audit trails for model governance
+
+### 🚀 Automatic Deployment and Redeployment
+
+A key advantage of this integration is that OpenPipe automatically deploys your fine-tuned model as soon as training completes. Your model is immediately available via API without any additional deployment steps.
+
+![OpenPipe Deployed Model](zenml_openpipe_pipeline_deployed.png)
+*The OpenPipe console showing a successfully deployed fine-tuned model*
+
+When you run the pipeline again with new data, OpenPipe automatically retrains and redeploys your model, ensuring your production model always reflects your latest data. This makes it easy to implement a continuous improvement cycle:
+
+1. Fine-tune initial model
+2. Collect feedback and new examples
+3. Rerun the pipeline to update the model
+4. Repeat to continuously improve performance
 
 ## 📚 Advanced Usage
 
