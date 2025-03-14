@@ -17,9 +17,9 @@
 
 import datetime
 import time
-from typing import Dict
+from typing import Dict, Annotated
 
-from zenml import step
+from zenml import step, log_metadata
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -43,7 +43,7 @@ def openpipe_finetuning_starter(
     verbose_logs: bool = True,
     auto_rename: bool = True,
     force_overwrite: bool = False,
-) -> Dict:
+) -> Annotated[Dict, "fine_tuning_result"]:
     """Start a fine-tuning job on OpenPipe using the Python SDK.
 
     This step initiates a fine-tuning job on OpenPipe using the official Python SDK
@@ -75,6 +75,28 @@ def openpipe_finetuning_starter(
     logger.info(
         f"Starting fine-tuning job for model: {model_name} with base model: {base_model}"
     )
+    
+    # Log fine-tuning configuration parameters
+    log_metadata(
+        metadata={
+            "fine_tuning_config": {
+                "dataset_id": dataset_id,
+                "model_name": model_name,
+                "base_model": base_model,
+                "enable_sft": enable_sft,
+                "enable_preference_tuning": enable_preference_tuning,
+                "learning_rate_multiplier": learning_rate_multiplier,
+                "num_epochs": num_epochs,
+                "batch_size": batch_size,
+                "default_temperature": default_temperature,
+                "wait_timeout_minutes": timeout_minutes if wait_for_completion else "N/A",
+            },
+            "model_management": {
+                "auto_rename": auto_rename,
+                "force_overwrite": force_overwrite,
+            }
+        }
+    )
 
     # Initialize OpenPipe client
     op_client = OpenPipe(api_key=openpipe_api_key)
@@ -102,6 +124,9 @@ def openpipe_finetuning_starter(
                 )
                 op_client.delete_model(model_slug=model_name)
                 logger.info(f"Successfully deleted existing model {model_name}")
+                log_metadata(
+                    metadata={"model_action": "deleted_existing"}
+                )
             elif auto_rename:
                 # Generate a new unique name by appending a timestamp
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -112,11 +137,28 @@ def openpipe_finetuning_starter(
                 result["renamed"] = True
                 result["original_model_name"] = original_model_name
                 result["model_name"] = model_name
+                log_metadata(
+                    metadata={
+                        "model_rename": {
+                            "action": "renamed",
+                            "original_name": original_model_name,
+                            "new_name": model_name
+                        }
+                    }
+                )
             else:
                 # Fail with a more helpful error message
                 logger.error(
                     f"Model {model_name} already exists. Use auto_rename=True to generate a unique name "
                     f"or force_overwrite=True to replace the existing model."
+                )
+                log_metadata(
+                    metadata={
+                        "model_error": {
+                            "action": "failed_existing_model",
+                            "error": "Model already exists and neither auto_rename nor force_overwrite enabled"
+                        }
+                    }
                 )
                 raise Exception(
                     f"Model {model_name} already exists. Use auto_rename=True or force_overwrite=True."
@@ -125,6 +167,9 @@ def openpipe_finetuning_starter(
         # If the exception is not about model existence, just log a warning and continue
         if not (hasattr(e, "status_code") and e.status_code == 404):
             logger.warning(f"Error checking if model exists: {str(e)}")
+            log_metadata(
+                metadata={"model_check_error": str(e)}
+            )
 
     try:
         # Prepare training configuration
@@ -164,9 +209,10 @@ def openpipe_finetuning_starter(
         # Wait for the job to complete if requested
         if wait_for_completion:
             logger.info(f"Waiting for fine-tuning job {job_id} to complete...")
-
+            
             start_time = time.time()
             timeout_seconds = timeout_minutes * 60
+            status_history = []
 
             while time.time() - start_time < timeout_seconds:
                 try:
@@ -177,6 +223,7 @@ def openpipe_finetuning_starter(
                     # Extract status and error message if any
                     status = model_info.openpipe.status
                     error_message = model_info.openpipe.error_message
+                    
                     # Map OpenPipe status to our result status
                     if status == "DEPLOYED":
                         result["status"] = "ready"
@@ -199,6 +246,9 @@ def openpipe_finetuning_starter(
                             for key, value in hyperparams.items():
                                 logger.info(f"  {key}: {value}")
                             result["logged_hyperparams"] = True
+                            log_metadata(
+                                metadata={"hyperparameters": hyperparams}
+                            )
 
                     # If the job has completed (successfully or with error), break
                     if status in ["DEPLOYED", "ERROR"]:
@@ -208,20 +258,64 @@ def openpipe_finetuning_starter(
                     logger.warning(
                         f"Failed to fetch model details, will retry: {str(e)}"
                     )
+                    log_metadata(
+                        metadata={"polling_error": str(e)}
+                    )
 
                 # Wait before checking again
                 time.sleep(check_interval_seconds)
 
+            # Log status history
+            log_metadata(
+                metadata={
+                    "completion_stats": {
+                        "status_history": status_history,
+                        "wait_duration_seconds": round(time.time() - start_time),
+                        "completion_time": datetime.datetime.now().isoformat()
+                    }
+                }
+            )
+
             # Final status check and log
             if result["status"] == "ready":
                 logger.info(f"Fine-tuning job {job_id} completed successfully!")
+                log_metadata(
+                    metadata={"final_status": "success"}
+                )
+                
+                # Log model info if available
+                if result["model_info"]:
+                    log_metadata(
+                        metadata={
+                            "model_deployment": {
+                                "url": f"https://openpipe.ai/models/{model_name}",
+                                "time": datetime.datetime.now().isoformat()
+                            }
+                        }
+                    )
             elif result["status"] == "failed":
                 logger.error(f"Fine-tuning job {job_id} failed!")
                 if result["error_message"]:
                     logger.error(f"Error message: {result['error_message']}")
+                    log_metadata(
+                        metadata={
+                            "job_failure": {
+                                "status": "failed",
+                                "error_message": result["error_message"]
+                            }
+                        }
+                    )
             else:
                 logger.warning(
                     f"Fine-tuning job {job_id} is still running after timeout ({timeout_minutes} minutes)"
+                )
+                log_metadata(
+                    metadata={
+                        "timeout": {
+                            "status": "timed_out",
+                            "minutes": timeout_minutes
+                        }
+                    }
                 )
 
         return result
@@ -231,4 +325,13 @@ def openpipe_finetuning_starter(
         if hasattr(e, "response") and e.response is not None:
             logger.error(f"Response status code: {e.response.status_code}")
             logger.error(f"Response body: {e.response.text}")
+            
+        log_metadata(
+            metadata={
+                "execution_error": {
+                    "message": str(e),
+                    "time": datetime.datetime.now().isoformat()
+                }
+            }
+        )
         raise

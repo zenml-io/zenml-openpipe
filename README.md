@@ -284,7 +284,7 @@ Contributions are welcome! Please check out our [contribution guidelines](CONTRI
 ## 🆘 Getting Help
 
 - Join the [ZenML Slack community](https://zenml.io/slack) 
-- Ask questions in the **#help** channel or the **#openpipe** channel
+- Ask questions in the **#general** channel
 - [Open an issue](https://github.com/zenml-io/zenml-openpipe/issues/new/choose) on GitHub
 
 ## 📜 License

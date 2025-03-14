@@ -17,10 +17,10 @@
 
 import json
 import os
-from typing import List, Optional
+from typing import List, Optional, Annotated
 
 import pandas as pd
-from zenml import step
+from zenml import step, log_metadata
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -35,7 +35,7 @@ def openpipe_data_converter(
     split_ratio: float = 0.9,
     metadata_columns: Optional[List[str]] = None,
     output_path: str = "openpipe_data.jsonl",
-) -> str:
+) -> Annotated[str, "jsonl_path"]:
     """Convert data to OpenPipe JSONL format.
 
     This step converts a pandas DataFrame to the OpenPipe JSONL format
@@ -54,6 +54,23 @@ def openpipe_data_converter(
         The path to the generated JSONL file
     """
     logger.info(f"Converting data to OpenPipe JSONL format and saving to {output_path}")
+
+    # Log important metadata for tracking and reproducibility
+    log_metadata(
+        metadata={
+            "configuration": {
+                "system_prompt": system_prompt,
+                "user_column": user_column,
+                "assistant_column": assistant_column, 
+                "split_ratio": split_ratio,
+                "metadata_columns": metadata_columns if metadata_columns else [],
+            },
+            "data_stats": {
+                "dataset_shape": f"{data.shape[0]} rows × {data.shape[1]} columns",
+                "sample_data": data.head(2).to_dict() if len(data) > 0 else {},
+            }
+        }
+    )
 
     # Create the output directory if it doesn't exist
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
@@ -96,10 +113,25 @@ def openpipe_data_converter(
         for entry in jsonl_data:
             f.write(json.dumps(entry) + "\n")
 
+    # Log statistics about the generated data
+    train_count = sum(1 for x in jsonl_data if x["split"] == "TRAIN")
+    test_count = sum(1 for x in jsonl_data if x["split"] == "TEST")
+    
+    log_metadata(
+        metadata={
+            "output_stats": {
+                "examples_count": len(jsonl_data),
+                "train_examples": train_count,
+                "test_examples": test_count,
+                "train_test_ratio": f"{train_count}:{test_count}"
+            }
+        }
+    )
+
     logger.info(
         f"Successfully created {len(jsonl_data)} examples "
-        f"({sum(1 for x in jsonl_data if x['split'] == 'TRAIN')} train, "
-        f"{sum(1 for x in jsonl_data if x['split'] == 'TEST')} test)"
+        f"({train_count} train, "
+        f"{test_count} test)"
     )
 
     return output_path

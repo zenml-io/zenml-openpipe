@@ -16,9 +16,10 @@
 #
 
 import json
+from typing import Annotated
 
 from openpipe.client import OpenPipe
-from zenml import step
+from zenml import step, log_metadata
 from zenml.logger import get_logger
 
 logger = get_logger(__name__)
@@ -29,7 +30,7 @@ def openpipe_dataset_creator(
     jsonl_path: str,
     dataset_name: str,
     openpipe_api_key: str,
-) -> str:
+) -> Annotated[str, "dataset_id"]:
     """Create an OpenPipe dataset and upload data.
 
     This step creates a new dataset in OpenPipe and uploads the JSONL data to it,
@@ -44,6 +45,17 @@ def openpipe_dataset_creator(
         The ID of the created dataset
     """
     logger.info(f"Creating OpenPipe dataset: {dataset_name}")
+    
+    # Log dataset creation metadata
+    log_metadata(
+        metadata={
+            "dataset_info": {
+                "dataset_name": dataset_name,
+                "input_file": jsonl_path,
+                "api_endpoint": "https://api.openpipe.ai/api/v1",
+            }
+        }
+    )
 
     # Initialize OpenPipe client
     op_client = OpenPipe(api_key=openpipe_api_key)
@@ -57,6 +69,11 @@ def openpipe_dataset_creator(
             raise ValueError("Failed to get dataset ID from response")
 
         logger.info(f"Successfully created dataset with ID: {dataset_id}")
+        
+        # Log the created dataset ID
+        log_metadata(
+            metadata={"openpipe_dataset_id": dataset_id}
+        )
     except Exception as e:
         logger.error(f"Failed to create dataset: {str(e)}")
         raise
@@ -72,21 +89,43 @@ def openpipe_dataset_creator(
 
         # Upload data in batches to avoid potential API limitations
         batch_size = 100
+        total_batches = (len(entries) - 1) // batch_size + 1
+        
         for i in range(0, len(entries), batch_size):
             batch = entries[i : i + batch_size]
+            batch_num = i // batch_size + 1
 
             op_client.create_dataset_entries(dataset_id=dataset_id, entries=batch)
 
             logger.info(
-                f"Uploaded batch {i // batch_size + 1}/{(len(entries) - 1) // batch_size + 1} "
+                f"Uploaded batch {batch_num}/{total_batches} "
                 f"({len(batch)} entries)"
             )
 
         logger.info(
             f"Successfully uploaded {len(entries)} entries to dataset {dataset_id}"
         )
+        
+        # Log final stats
+        log_metadata(
+            metadata={
+                "upload_results": {
+                    "total_examples_uploaded": len(entries),
+                    "upload_status": "complete",
+                }
+            }
+        )
     except Exception as e:
         logger.error(f"Failed to upload data: {str(e)}")
+        # Log error details
+        log_metadata(
+            metadata={
+                "upload_error": {
+                    "status": "failed",
+                    "error_message": str(e)
+                }
+            }
+        )
         raise
 
     return dataset_id
