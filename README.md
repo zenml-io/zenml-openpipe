@@ -6,9 +6,9 @@
 <div align="center">
   <br />
   <p>
-    <img src="https://ai-infrastructure.org/wp-content/uploads/2022/08/ZenML-Logo.png" alt="ZenML Logo" height="50">
+    <img src="https://ai-infrastructure.org/wp-content/uploads/2022/08/ZenML-Logo.png" alt="ZenML Logo" height="70">
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <img src="https://bookface-images.s3.amazonaws.com/logos/fb9d92257bfc16c8162d539e84b1a125614976f3.png?1693238562" alt="OpenPipe Logo" height="50">
+    <img src="https://bookface-images.s3.amazonaws.com/logos/fb9d92257bfc16c8162d539e84b1a125614976f3.png?1693238562" alt="OpenPipe Logo" height="70">
   </p>
   <br />
 
@@ -157,20 +157,72 @@ question,answer,product
 "Is my Ultra SmartWatch waterproof?","Yes, the Ultra SmartWatch is water-resistant up to 50 meters.",smartwatch
 ```
 
-### Using Your Data
+### Understanding the Data Transformation Process
 
-1. **Prepare your CSV file** with the required columns
-2. **Run the pipeline** specifying your data file:
+When you provide your CSV file, the pipeline automatically:
+
+1. **Reads** your CSV data
+2. **Applies** the system prompt to all examples
+3. **Converts** the data to OpenPipe's required JSONL format
+4. **Splits** the data into training and testing sets
+
+The final JSONL format looks like this (from the generated `openpipe_data.jsonl`):
+
+```json
+{
+  "messages": [
+    {"role": "system", "content": "You are a helpful customer service assistant for Ultra electronics products."},
+    {"role": "user", "content": "What is the price of the UltraPhone X?"},
+    {"role": "assistant", "content": "The UltraPhone X is available for $999. Would you like to know about our financing options?"}
+  ],
+  "split": "TRAIN",
+  "metadata": {"product": "UltraPhone X"}
+}
+```
+
+### Step-by-Step Guide to Using Your Data
+
+1. **Prepare your CSV file** with at least these columns:
+   - A question/user message column (named `question` by default)
+   - An answer/assistant response column (named `answer` by default)
+   - Any additional metadata columns you want to include (optional)
+
+2. **Run the pipeline** with your data file:
    ```bash
    python run.py --data-source=path/to/your/data.csv
    ```
 
-### Customizing Column Names
+3. **Check the results** in the ZenML dashboard or logs
 
-If your CSV uses different column names, you can specify them:
+Here's a complete example with all possible customizations:
 
 ```bash
-python run.py --data-source=path/to/your/data.csv --user-column=prompt --assistant-column=completion
+python run.py \
+  --data-source=my_customer_support_data.csv \
+  --user-column=customer_query \
+  --assistant-column=agent_response \
+  --system-prompt="You are a helpful customer service assistant for Acme Corp." \
+  --metadata-columns=product_category \
+  --metadata-columns=customer_segment \
+  --split-ratio=0.85
+```
+
+### Customizing Column Names
+
+If your CSV uses different column names than the defaults, specify them with command-line arguments:
+
+```bash
+python run.py \
+  --data-source=path/to/your/data.csv \
+  --user-column=prompt \
+  --assistant-column=completion
+```
+
+For example, if your CSV looks like this:
+```csv
+prompt,completion,category
+"What's your return policy?","We offer a 30-day no-questions-asked return policy.",returns
+"Do you ship internationally?","Yes, we ship to over 50 countries worldwide.",shipping
 ```
 
 ### Adding Metadata
